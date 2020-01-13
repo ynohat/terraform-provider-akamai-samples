@@ -1,0 +1,153 @@
+{
+    "rules": {
+        "name": "default",
+        "children": [
+            {
+                "name": "Default CORS Policy",
+                "children": [],
+                "behaviors": [
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "*",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_ALLOW_ORIGIN"
+                        }
+                    },
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "GET,POST,OPTIONS",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_ALLOW_METHODS"
+                        }
+                    },
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "origin,range,hdntl,hdnts",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_ALLOW_HEADERS"
+                        }
+                    },
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "Server,range,hdntl,hdnts,Akamai-Mon-Iucid-Ing,Akamai-Mon-Iucid-Del",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_EXPOSE_HEADERS"
+                        }
+                    },
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "true",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_ALLOW_CREDENTIALS"
+                        }
+                    },
+                    {
+                        "name": "modifyOutgoingResponseHeader",
+                        "options": {
+                            "action": "MODIFY",
+                            "avoidDuplicateHeaders": false,
+                            "newHeaderValue": "86400",
+                            "standardModifyHeaderName": "ACCESS_CONTROL_MAX_AGE"
+                        }
+                    }
+                ],
+                "criteria": [],
+                "criteriaMustSatisfy": "all"
+            }
+        ],
+        "behaviors": [
+            {
+                "name": "origin",
+                "options": {
+                    "netStorage": {
+                        "cpCode": ${ns_cpcode_id},
+                        "downloadDomainName": "${ns_download_domain}",
+                        "g2oToken": null
+                    },
+                    "originType": "NET_STORAGE"
+                }
+            },
+            {
+                "name": "cpCode",
+                "options": {
+                    "value": {
+                        "id": ${amd_cpcode_id},
+                        "name": "${amd_cpcode_name}",
+                        "products": [
+                            "${amd_product}"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "segmentedMediaOptimization",
+                "options": {
+                    "behavior": "ON_DEMAND"
+                }
+            },
+            {
+                "name": "originCharacteristics",
+                "options": {
+                    "authenticationMethod": "AUTOMATIC",
+                    "authenticationMethodTitle": "",
+                    "country": "GLOBAL_MULTI_GEO"
+                }
+            },
+            {
+                "name": "contentCharacteristicsAMD",
+                "options": {
+                    "catalogSize": "SMALL",
+                    "contentType": "HD",
+                    "dash": true,
+                    "hds": true,
+                    "hls": true,
+                    "popularityDistribution": "UNKNOWN",
+                    "segmentDurationDASH": "SEGMENT_DURATION_6S",
+                    "segmentDurationHDS": "SEGMENT_DURATION_6S",
+                    "segmentDurationHLS": "SEGMENT_DURATION_10S",
+                    "segmentDurationSmooth": "SEGMENT_DURATION_2S",
+                    "segmentSizeDASH": "UNKNOWN",
+                    "segmentSizeHDS": "UNKNOWN",
+                    "segmentSizeHLS": "UNKNOWN",
+                    "segmentSizeSmooth": "UNKNOWN",
+                    "smooth": true
+                }
+            },
+            {
+                "name": "clientCharacteristics",
+                "options": {
+                    "country": "GLOBAL"
+                }
+            },
+            {
+                "name": "cacheKeyQueryParams",
+                "options": {
+                    "behavior": "IGNORE_ALL"
+                }
+            },
+            {
+                "name": "segmentedContentProtection",
+                "options": {
+                    "enabled": false,
+                    "hlsMediaEncryption": false,
+                    "mediaEncryptionTitle": "",
+                    "tokenAuthenticationTitle": ""
+                }
+            }
+        ],
+        "options": {
+            "is_secure": true
+        },
+        "variables": []
+    }
+}
