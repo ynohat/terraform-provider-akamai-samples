@@ -22,19 +22,24 @@ class TerraformQuery(object):
         self.property = kv["property"]
         self.version = kv.get("version", SymbolicVersion.latest.name)
 
+        self.host = None
+        self.access_token = None
+        self.client_token = None
+        self.client_secret = None
+
         if "section" in kv:
             edgercPath = kv.get("edgerc", join(environ.get("HOME"), ".edgerc"))
             edgerc = EdgeRc(expandvars(expanduser(edgercPath)))
             section = kv.get("section", "papi")
-            self.baseUrl = "https://{0}".format(edgerc.get(section, "host"))
+            self.host = edgerc.get(section, "host")
             self.access_token = edgerc.get(section, "access_token")
             self.client_token = edgerc.get(section, "client_token")
             self.client_secret = edgerc.get(section, "client_secret")
-        else:
-            self.baseUrl = "https://{0}".format(kv.get("host"))
-            self.access_token = kv.get("access_token")
-            self.client_token = kv.get("client_token")
-            self.client_secret = kv.get("client_secret")
+
+        self.baseUrl = "https://{0}".format(kv.get("host", self.host))
+        self.access_token = kv.get("access_token", self.access_token)
+        self.client_token = kv.get("client_token", self.client_token)
+        self.client_secret = kv.get("client_secret", self.client_secret)
 
 class PropertyDescriptor(object):
     def __init__(self, contractId, groupId, propertyId, **kwargs):
