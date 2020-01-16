@@ -1,3 +1,7 @@
+terraform {
+  required_version = "~> 0.12"
+}
+
 variable "edgerc" {
   type        = string
   default     = "~/.edgerc"
@@ -50,11 +54,6 @@ variable "ns_cpcode_id" {
   description = "NetStorage CP Code ID"
 }
 
-variable "ns_cpcode_name" {
-  type        = string
-  description = "NetStorage CP Code"
-}
-
 variable "ns_download_domain" {
   type        = string
   description = "NetStorage download domain"
@@ -84,7 +83,6 @@ locals {
   # file and into the actual property without running the logic
   # twice.
   rules = templatefile("${path.module}/rules.tfjson", {
-    ns_cpcode_name     = var.ns_cpcode_name
     ns_cpcode_id       = parseint(replace(var.ns_cpcode_id, "cpc_", ""), 10)
     amd_product        = var.amd_product
     amd_cpcode_name    = var.amd_cpcode_name
@@ -128,5 +126,6 @@ resource "akamai_property_activation" "staging" {
   property = akamai_property.default.id
   network  = "STAGING"
   activate = true
+  version  = akamai_property.default.version
   contact  = var.email
 }

@@ -1,0 +1,3 @@
+conf_name = "multi_env_with_consul_backend_STAGE"
+hostname = "multi_env_with_consul_backend_STAGE.edgesuite.net"
+edge_hostname = "multi_env_with_consul_backend_STAGE.edgesuite.net"

@@ -1,0 +1,8 @@
+version: '3'
+services:
+    consul:
+        image: bitnami/consul:latest
+        volumes:
+            - ./.consul-data:/bitnami/consul
+        ports:
+            - '8500:8500'

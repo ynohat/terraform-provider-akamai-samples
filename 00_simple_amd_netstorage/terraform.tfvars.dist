@@ -5,16 +5,16 @@ edgerc = "~/.edgerc"
 edgerc_papi = "papi"
 
 # Name of the generated configuration
-conf_name = "www.acme.org-tf"
+conf_name = "simple_amd_netstorage"
 
 # Name of the Access Control Group
 group_name = "00_simple_amd_netstorage"
 
 # Hostname used by the end-user
-hostname = "media.acme.org"
+hostname = "simple_amd_netstorage.edgesuite.net"
 
 # Edge hostname used to map the end-user to Akamai
-edge_hostname = "media.acme.org.edgekey.net"
+edge_hostname = "simple_amd_netstorage.edgesuite.net"
 
 # Activation notification email recipients
 email = ["johndoe@acme.org"]
@@ -24,14 +24,10 @@ email = ["johndoe@acme.org"]
 amd_product = "Adaptive_Media_Delivery"
 
 # AMD CP Code Name
-amd_cpcode_name = "media.acme.org"
-
-# NetStorage CP Code Name
-ns_cpcode_name = "storage.acme.org"
+amd_cpcode_name = "simple_amd_netstorage.edgesuite.net"
 
 # NetStorage CP Code ID
-# Bug: 
 ns_cpcode_id = 123456
 
 # NetStorage download domain
-ns_download_domain = "acme-storage.download.akamai.com"
+ns_download_domain = "simple_amd_netstorage.edgesuite.net.download.akamai.com"

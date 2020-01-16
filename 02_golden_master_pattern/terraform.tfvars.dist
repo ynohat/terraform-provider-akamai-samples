@@ -1,0 +1,18 @@
+# Path to .edgerc file
+edgerc = "~/.edgerc"
+
+# Edgerc section for PAPI
+edgerc_papi = "papi"
+
+# Master config name
+master_property = "dev.acme.org"
+
+# Master config version
+master_version = "production"
+
+# Activation notification email recipients
+email = ["johndoe@acme.org"]
+
+# Product to associate with the configurations
+# See https://www.terraform.io/docs/providers/akamai/g/appendix.html
+product = "SPM"
