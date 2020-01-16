@@ -10,6 +10,27 @@ variable "edgerc_papi" {
   description = "Name of the edgerc section for PAPI."
 }
 
+variable "eg_host" {
+  type        = string
+  default     = null
+  description = "Edgegrid host (if specifying explicit credentials)"
+}
+variable "eg_access_token" {
+  type        = string
+  default     = null
+  description = "Edgegrid Access token (if specifying explicit credentials)"
+}
+variable "eg_client_token" {
+  type        = string
+  default     = null
+  description = "Edgegrid Client token (if specifying explicit credentials)"
+}
+variable "eg_client_secret" {
+  type        = string
+  default     = null
+  description = "Edgegrid Client secret (if specifying explicit credentials)"
+}
+
 variable "master_property" {
   type        = string
   description = "Name of the master Akamai configuration file"
@@ -52,19 +73,25 @@ variable "product" {
 
 variable "staging" {
   type        = bool
-  default = true
+  default     = true
   description = "Activate in staging"
 }
 
 variable "production" {
   type        = bool
-  default = false
+  default     = false
   description = "Activate in production"
 }
 
 provider "akamai" {
   edgerc           = var.edgerc
   property_section = var.edgerc_papi
+  property {
+    host          = var.eg_host
+    access_token  = var.eg_access_token
+    client_token  = var.eg_client_token
+    client_secret = var.eg_client_secret
+  }
 }
 
 data "akamai_contract" "default" {}
@@ -75,14 +102,14 @@ data "akamai_group" "default" {
 }
 
 data "external" "master_rules" {
-    program = ["${path.module}/get_rules.py"]
+  program = ["${path.module}/get_rules.py"]
 
-    query = {
-        edgerc = var.edgerc
-        section = var.edgerc_papi
-        property = var.master_property
-        version = var.master_version
-    }
+  query = {
+    edgerc   = var.edgerc
+    section  = var.edgerc_papi
+    property = var.master_property
+    version  = var.master_version
+  }
 }
 
 resource "akamai_edge_hostname" "default" {
