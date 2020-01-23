@@ -61,6 +61,11 @@ variable "edge_hostname" {
   description = "Edge hostname"
 }
 
+variable "rules_path" {
+  type        = string
+  description = "Rules path"
+}
+
 variable "email" {
   type        = list(string)
   description = "Notification email"
@@ -101,20 +106,20 @@ data "akamai_group" "default" {
   name     = var.group_name
 }
 
-data "external" "master_rules" {
-  program = ["${path.module}/get_rules.py"]
+# data "external" "master_rules" {
+#   program = ["${path.module}/get_rules.py"]
 
-  query = {
-    edgerc        = var.edgerc
-    section       = var.edgerc_papi
-    property      = var.master_property
-    version       = var.master_version
-    host          = var.eg_host
-    access_token  = var.eg_access_token
-    client_token  = var.eg_client_token
-    client_secret = var.eg_client_secret
-  }
-}
+#   query = {
+#     edgerc        = var.edgerc
+#     section       = var.edgerc_papi
+#     property      = var.master_property
+#     version       = var.master_version
+#     host          = var.eg_host
+#     access_token  = var.eg_access_token
+#     client_token  = var.eg_client_token
+#     client_secret = var.eg_client_secret
+#   }
+# }
 
 resource "akamai_edge_hostname" "default" {
   product       = "prd_${var.product}"
@@ -135,7 +140,7 @@ resource "akamai_property" "default" {
   }
 
   rule_format = "latest"
-  rules       = data.external.master_rules.result.tree
+  rules       = file(var.rules_path)
 }
 
 resource "akamai_property_activation" "staging" {
