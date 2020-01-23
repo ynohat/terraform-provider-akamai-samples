@@ -141,7 +141,7 @@ resource "akamai_property" "default" {
 resource "akamai_property_activation" "staging" {
   property = akamai_property.default.id
   network  = "STAGING"
-  version = akamai_property.default.version
+  # version = akamai_property.default.version
   activate = var.production
   contact  = var.email
 }
@@ -149,7 +149,7 @@ resource "akamai_property_activation" "staging" {
 resource "akamai_property_activation" "production" {
   property = akamai_property.default.id
   network  = "PRODUCTION"
-  version = akamai_property.default.version
+  # version = akamai_property.default.version
   activate = var.production
   contact  = var.email
 }
