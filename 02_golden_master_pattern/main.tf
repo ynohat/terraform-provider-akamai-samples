@@ -147,7 +147,7 @@ resource "akamai_property_activation" "staging" {
   property = akamai_property.default.id
   network  = "STAGING"
   # version = akamai_property.default.version
-  activate = var.production
+  activate = var.staging
   contact  = var.email
 }
 
