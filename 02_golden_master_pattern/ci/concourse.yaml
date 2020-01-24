@@ -1,0 +1,308 @@
+---
+resource_types:
+- name: terraform
+  type: docker-image
+  source:
+    repository: ynohat/terraform-resource-pyedgegrid
+    tag: 0.12.19
+- name: property-activation
+  type: docker-image
+  source:
+    repository: ynohat/concourse-akamai-property-activation-resource
+    tag: latest
+- name: slack
+  type: docker-image
+  source:
+    repository: quay.io/ahelal/bender
+    tag: latest
+
+resources:
+- name: deploy
+  icon: run
+  type: terraform
+  source:
+    backend_type: consul
+    backend_config:
+      address: ((consul_host))
+      scheme: https
+      path: terraform-provider-akamai-samples/02_golden_master_pattern
+    vars:
+      group_name: 02_golden_master_pattern
+      master_property: golden-master
+      master_version: production
+      email: [((recipient))]
+      product: SPM
+      edgerc: null
+      edgerc_papi: null
+      eg_host: ((eg_host))
+      eg_access_token: ((eg_access_token))
+      eg_client_token: ((eg_client_token))
+      eg_client_secret: ((eg_client_secret))
+
+- name: tf-config
+  icon: github-circle
+  public: true
+  type: git
+  check_every: 10s
+  source:
+    uri: https://github.com/ynohat/terraform-provider-akamai-samples.git
+    branch: master
+
+- name: master-prod-atv
+  public: true
+  type: property-activation
+  check_every: 10s
+  source:
+    property: golden-master
+    network: PRODUCTION
+    host: ((eg_host))
+    access_token: ((eg_access_token))
+    client_token: ((eg_client_token))
+    client_secret: ((eg_client_secret))
+
+- name: qa-stg-atv
+  public: true
+  type: property-activation
+  check_every: 10s
+  source:
+    property: golden-master-qa
+    network: STAGING
+    host: ((eg_host))
+    access_token: ((eg_access_token))
+    client_token: ((eg_client_token))
+    client_secret: ((eg_client_secret))
+
+- name: prp-stg-atv
+  public: true
+  type: property-activation
+  check_every: 10s
+  source:
+    property: golden-master-prp
+    network: STAGING
+    host: ((eg_host))
+    access_token: ((eg_access_token))
+    client_token: ((eg_client_token))
+    client_secret: ((eg_client_secret))
+
+- name: prd-stg-atv
+  public: true
+  type: property-activation
+  check_every: 10s
+  source:
+    property: golden-master-prd
+    network: STAGING
+    host: ((eg_host))
+    access_token: ((eg_access_token))
+    client_token: ((eg_client_token))
+    client_secret: ((eg_client_secret))
+
+- name: prp-acceptance
+  public: true
+  icon: check-decagram
+  type: slack
+  source:
+    slack_token: ((slack_token))
+    bot_name: concourse-bot
+    grammar: go prp
+    channel: concourse
+
+- name: prd-acceptance
+  public: true
+  icon: check-decagram
+  type: slack
+  source:
+    slack_token: ((slack_token))
+    bot_name: concourse-bot
+    grammar: go prd
+    channel: concourse
+
+jobs:
+- name: tf-qa-staging
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: master-prod-atv
+    trigger: true
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: qa
+      vars:
+        property_name: golden-master-qa
+        hostname: golden-master-qa.edgesuite.net
+        edge_hostname: golden-master-qa.edgesuite.net
+        staging: true
+        production: false
+        rules_path: ../../master-prod-atv/rules.json
+
+- name: unit-qa
+  public: true
+  plan:
+  - get: qa-stg-atv
+    trigger: true
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          sleep 30
+          echo all tests green
+
+- name: tf-qa-production
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: master-prod-atv
+    passed: [tf-qa-staging]
+    trigger: true
+  - get: qa-stg-atv
+    passed: [unit-qa]
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: qa
+      vars:
+        property_name: golden-master-qa
+        hostname: golden-master-qa.edgesuite.net
+        edge_hostname: golden-master-qa.edgesuite.net
+        staging: true
+        production: true
+        rules_path: ../../master-prod-atv/rules.json
+
+- name: tf-prp-staging
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: master-prod-atv
+    passed: [tf-qa-production]
+    trigger: true
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: prp
+      vars: 
+        property_name: golden-master-prp
+        hostname: golden-master-prp.edgesuite.net
+        edge_hostname: golden-master-prp.edgesuite.net
+        staging: true
+        production: false
+        rules_path: ../../master-prod-atv/rules.json
+
+- name: unit-prp
+  public: true
+  plan:
+  - get: prp-stg-atv
+    trigger: true
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          sleep 30
+          echo all tests green
+
+- name: tf-prp-production
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: prp-acceptance
+  - get: master-prod-atv
+    passed: [tf-prp-staging]
+    trigger: true
+  - get: prp-stg-atv
+    passed: [unit-prp]
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: prp
+      vars:
+        property_name: golden-master-prp
+        hostname: golden-master-prp.edgesuite.net
+        edge_hostname: golden-master-prp.edgesuite.net
+        staging: true
+        production: true
+        rules_path: ../../master-prod-atv/rules.json
+
+- name: tf-prd-staging
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: master-prod-atv
+    passed: [tf-prp-production]
+    trigger: true
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: prd
+      vars: 
+        property_name: golden-master-prd
+        hostname: golden-master-prd.edgesuite.net
+        edge_hostname: golden-master-prd.edgesuite.net
+        staging: true
+        production: false
+        rules_path: ../../master-prod-atv/rules.json
+
+- name: unit-prd
+  public: true
+  plan:
+  - get: prd-stg-atv
+    trigger: true
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: busybox}
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          sleep 30
+          echo all tests green
+
+- name: tf-prd-production
+  serial: true
+  serial_groups: [tf-state]
+  public: true
+  plan:
+  - get: prd-acceptance
+  - get: master-prod-atv
+    passed: [tf-prd-staging]
+    trigger: true
+  - get: prd-stg-atv
+    passed: [unit-prd]
+  - get: tf-config
+  - put: deploy
+    params:
+      terraform_source: tf-config/02_golden_master_pattern
+      env_name: prd
+      vars:
+        property_name: golden-master-prd
+        hostname: golden-master-prd.edgesuite.net
+        edge_hostname: golden-master-prd.edgesuite.net
+        staging: true
+        production: true
+        rules_path: ../../master-prod-atv/rules.json

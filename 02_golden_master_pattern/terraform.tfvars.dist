@@ -16,3 +16,20 @@ email = ["johndoe@acme.org"]
 # Product to associate with the configurations
 # See https://www.terraform.io/docs/providers/akamai/g/appendix.html
 product = "SPM"
+
+#################################
+# Child configuration variables
+##################
+
+# Name of the Access Control Group under which the configuration
+# should be created
+group_name = "02_golden_master_pattern"
+
+# Name of the child property
+property_name = "prod.acme.org"
+
+# Hostname of the child property
+hostname = "www.acme.org"
+
+# Edge Hostname of the child property
+edge_hostname = "www.acme.org.edgesuite.net"        

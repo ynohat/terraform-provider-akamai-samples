@@ -106,21 +106,6 @@ data "akamai_group" "default" {
   name     = var.group_name
 }
 
-# data "external" "master_rules" {
-#   program = ["${path.module}/get_rules.py"]
-
-#   query = {
-#     edgerc        = var.edgerc
-#     section       = var.edgerc_papi
-#     property      = var.master_property
-#     version       = var.master_version
-#     host          = var.eg_host
-#     access_token  = var.eg_access_token
-#     client_token  = var.eg_client_token
-#     client_secret = var.eg_client_secret
-#   }
-# }
-
 resource "akamai_edge_hostname" "default" {
   product       = "prd_${var.product}"
   contract      = data.akamai_contract.default.id

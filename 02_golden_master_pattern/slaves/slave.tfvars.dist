@@ -1,4 +1,0 @@
-group_name = "02_golden_master_pattern"
-property_name = "prod.acme.org"
-hostname = "www.acme.org"
-edge_hostname = "www.acme.org.edgesuite.net"        
